@@ -9,13 +9,21 @@ class Grid extends Component {
         }
         this.defaultEmoji = "⬜️";
         this.emoji = [
-            { emoji: "⬛️", distance: 0, angle: null },
-            { emoji: "◼️", distance: 2, angle: null },
-            { emoji: "▪️", distance: 4, angle: null },
-            { emoji: "👈", distance: 8, angle: { gt: 315, lt: 45 } },
-            { emoji: "👆", distance: 8, angle: { gt: 45, lt: 135 } },
-            { emoji: "👉", distance: 8, angle: { gt: 135, lt: 225 } },
-            { emoji: "👇", distance: 8, angle: { gt: 225, lt: 315 } },
+            { emoji: "⬛️", distance: {min: 0, max: 0}, angle: null },
+            { emoji: "◼️", distance: {min: 1, max: 1}, angle: null },
+            { emoji: "▪️", distance: {min: 2, max: 2}, angle: null },
+            { emoji: "👈", distance: {min: 3, max: 5}, angle: { gt: 337.5, lt: 22.5 } },
+            { emoji: "👇", distance: {min: 3, max: 5}, angle: { gt: 67.5, lt: 112.5 } },
+            { emoji: "👉", distance: {min: 3, max: 5}, angle: { gt: 157.5, lt: 202.5 } },
+            { emoji: "👆", distance: {min: 3, max: 5}, angle: { gt: 247.5, lt: 292.5 } },
+            { emoji: "⬅️", distance: {min: 6, max: 8}, angle: { gt: 337.5, lt: 22.5 } },
+            { emoji: "↙️", distance: {min: 6, max: 8}, angle: { gt: 22.5, lt: 67.5 } },
+            { emoji: "⬇️", distance: {min: 6, max: 8}, angle: { gt: 67.5, lt: 112.5 } },
+            { emoji: "↘️", distance: {min: 6, max: 8}, angle: { gt: 112.5, lt: 157.5 } },
+            { emoji: "➡️", distance: {min: 6, max: 8}, angle: { gt: 157.5, lt: 202.5 } },
+            { emoji: "↗️", distance: {min: 6, max: 8}, angle: { gt: 202.5, lt: 247.5 } },
+            { emoji: "⬆️", distance: {min: 6, max: 8}, angle: { gt: 247.5, lt: 292.5 } },
+            { emoji: "↖️", distance: {min: 6, max: 8}, angle: { gt: 292.5, lt: 337.5 } },
             { emoji: "⬜️", distance: null, angle: null }
         ]
         this.initializeCells();
@@ -33,22 +41,26 @@ class Grid extends Component {
 
     criteria(cursorX, cursorY, x, y, emoji) {
         let distance = (Math.sqrt((x - cursorX) ** 2 + (y - cursorY) ** 2));
-        let angle = Math.atan2(y - cursorY, x - cursorX) * (180 / Math.PI);
+        let angle = Math.atan2(cursorY - y, x - cursorX) * (180 / Math.PI);
         angle = angle < 0 ? angle + 360 : angle;
+
         for (let i = 0; i < emoji.length; i++) {
+
             if (emoji[i].distance != null && emoji[i].angle != null) {
                 if (emoji[i].angle.gt < emoji[i].angle.lt) {
-                    if (distance <= emoji[i].distance &&
+                    if (emoji[i].distance.min <= distance && emoji[i].distance.max >= distance &&
                         angle >= emoji[i].angle.gt &&
                         angle < emoji[i].angle.lt) return emoji[i].emoji;
                 }
-                else if (distance <= emoji[i].distance &&
-                        ((angle >= emoji[i].angle.gt && angle < 360) ||
-                        (angle <= emoji[i].angle.lt && angle >= 0))) return emoji[i].emoji;
+                else if (emoji[i].distance.min <= distance && emoji[i].distance.max >= distance &&
+                         ((angle >= emoji[i].angle.gt && angle < 360) ||
+                          (angle <= emoji[i].angle.lt && angle >= 0))) return emoji[i].emoji;
             }
-            else if (emoji[i].distance != null && distance <= emoji[i].distance) {
+
+            else if (emoji[i].distance != null && emoji[i].distance.min <= distance && emoji[i].distance.max >= distance) {
                 return emoji[i].emoji;
             }
+
             else if (emoji[i].angle != null && angle >= emoji[i].angle.gt && angle < emoji[i].angle.lt) {
                 return emoji[i].emoji;
             }
