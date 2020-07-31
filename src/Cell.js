@@ -5,16 +5,16 @@ class Cell extends Component {
         super(props)
         this.state = {x: props.x, y: props.y, emoji: props.emoji}
 
-        this.handleMouseOver = this.handleMouseOver.bind(this);
+        this.handleHover = this.handleHover.bind(this);
     }
 
-    handleMouseOver() { 
-        this.props.handleClick(this.props.x, this.props.y);
+    handleHover() { 
+        this.props.handleHover(this.props.x, this.props.y);
     }
 
     render() {
         return (
-            <span onMouseOver={this.handleMouseOver}>{this.props.emoji}</span>
+            <span onMouseOver={this.handleHover}>{this.props.emoji}</span>
         )
     }
 }
