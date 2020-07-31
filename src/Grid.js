@@ -7,16 +7,17 @@ class Grid extends Component {
         this.state = {
             cells: []
         }
-        this.emoji = {
-            default: "⬜️",
-            close: "▪️",
-            closer: "◼️",
-            active: "⬛️",
-            left: "👈",
-            right: "👉",
-            up: "👆",
-            down: "👇"
-        }
+        this.defaultEmoji = "⬜️";
+        this.emoji = [
+            { emoji: "⬛️", distance: 0, angle: null },
+            { emoji: "◼️", distance: 2, angle: null },
+            { emoji: "▪️", distance: 4, angle: null },
+            { emoji: "👈", distance: 8, angle: { gt: 315, lt: 45 } },
+            { emoji: "👆", distance: 8, angle: { gt: 45, lt: 135 } },
+            { emoji: "👉", distance: 8, angle: { gt: 135, lt: 225 } },
+            { emoji: "👇", distance: 8, angle: { gt: 225, lt: 315 } },
+            { emoji: "⬜️", distance: null, angle: null }
+        ]
         this.initializeCells();
 
         this.handleHover = this.handleHover.bind(this);
@@ -30,30 +31,33 @@ class Grid extends Component {
         );
     }
 
-    single(cursorX, cursorY, x, y, emoji) {
-        if (cursorX === x && cursorY === y) return emoji.active;
-        else return emoji.default;
-    }
-
-    proximity(cursorX, cursorY, x, y, emoji) {
-        let distance = (Math.sqrt( (x-cursorX)**2 + (y-cursorY)**2));
-        if (distance === 0) return emoji.active;
-        else if (distance <= 2) return emoji.closer;
-        else if (distance <= 4) return emoji.close;
-        else return emoji.default;
-    }
-
-    angle(cursorX, cursorY, x, y, emoji) {
-        let deg = Math.atan2(y-cursorY, x-cursorX) * (180 / Math.PI);
-        if (cursorX === x && cursorY === y) return emoji.active;
-        if (Math.abs(deg) <= 45) return emoji.left;
-        else if (deg > 45 && deg < 135) return emoji.up;
-        else if (Math.abs(deg) >= 135) return emoji.right;
-        else return emoji.down;
+    criteria(cursorX, cursorY, x, y, emoji) {
+        let distance = (Math.sqrt((x - cursorX) ** 2 + (y - cursorY) ** 2));
+        let angle = Math.atan2(y - cursorY, x - cursorX) * (180 / Math.PI);
+        angle = angle < 0 ? angle + 360 : angle;
+        for (let i = 0; i < emoji.length; i++) {
+            if (emoji[i].distance != null && emoji[i].angle != null) {
+                if (emoji[i].angle.gt < emoji[i].angle.lt) {
+                    if (distance <= emoji[i].distance &&
+                        angle >= emoji[i].angle.gt &&
+                        angle < emoji[i].angle.lt) return emoji[i].emoji;
+                }
+                else if (distance <= emoji[i].distance &&
+                        ((angle >= emoji[i].angle.gt && angle < 360) ||
+                        (angle <= emoji[i].angle.lt && angle >= 0))) return emoji[i].emoji;
+            }
+            else if (emoji[i].distance != null && distance <= emoji[i].distance) {
+                return emoji[i].emoji;
+            }
+            else if (emoji[i].angle != null && angle >= emoji[i].angle.gt && angle < emoji[i].angle.lt) {
+                return emoji[i].emoji;
+            }
+        }
+        return emoji[emoji.length - 1].emoji;
     }
 
     handleHover(x, y) {
-        this.updateCells(x, y, this.proximity);
+        this.updateCells(x, y, this.criteria);
     }
 
     updateCells(cursorX, cursorY, getEmoji) {
@@ -61,7 +65,7 @@ class Grid extends Component {
         for (let y = 0; y < this.props.height; y++) {
             let row = [];
             for (let x = 0; x < this.props.width; x++) {
-                row.push({x: x, y: y, emoji: getEmoji(cursorX, cursorY, x, y, this.emoji)});
+                row.push({ x: x, y: y, emoji: getEmoji(cursorX, cursorY, x, y, this.emoji) });
             }
             cells.push(row);
         }
@@ -74,14 +78,14 @@ class Grid extends Component {
         for (let y = 0; y < this.props.height; y++) {
             let row = [];
             for (let x = 0; x < this.props.width; x++) {
-                row.push({x: x, y: y, emoji: this.emoji.default});
+                row.push({ x: x, y: y, emoji: this.defaultEmoji });
             }
             this.state.cells.push(row);
         }
     }
 
     createGrid() {
-        return this.state.cells.map((row) => <tr>{row.map((cell) => <Cell x={cell.x} y={cell.y} emoji={cell.emoji} handleHover={this.handleHover}/>)}</tr>)
+        return this.state.cells.map((row) => <tr>{row.map((cell) => <Cell x={cell.x} y={cell.y} emoji={cell.emoji} handleHover={this.handleHover} />)}</tr>)
     }
 }
 
