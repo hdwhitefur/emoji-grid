@@ -2,8 +2,5 @@
     margin: 20px;
     width: 500px;
     height: 500px;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    grid-gap: 3px;
-    grid-auto-rows: minmax(100px, auto);
+    text-align: justify;
 }

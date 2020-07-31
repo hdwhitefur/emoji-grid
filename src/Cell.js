@@ -3,12 +3,18 @@ import React, { Component } from "react"
 class Cell extends Component {
     constructor(props) {
         super(props)
-        this.state = {emoji: props.emoji}
+        this.state = {x: props.x, y: props.y, emoji: props.emoji}
+
+        this.handleMouseOver = this.handleMouseOver.bind(this);
+    }
+
+    handleMouseOver() { 
+        this.props.handleClick(this.props.x, this.props.y);
     }
 
     render() {
         return (
-            this.state.emoji
+            <span onMouseOver={this.handleMouseOver}>{this.props.emoji}</span>
         )
     }
 }
