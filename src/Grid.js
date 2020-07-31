@@ -7,7 +7,16 @@ class Grid extends Component {
         this.state = {
             cells: []
         }
-        this.emoji = {default: "⬜️", active: "⬛️"}
+        this.emoji = {
+            default: "⬜️",
+            close: "▪️",
+            closer: "◼️",
+            active: "⬛️",
+            left: "👈",
+            right: "👉",
+            up: "👆",
+            down: "👇"
+        }
         this.initializeCells();
 
         this.handleHover = this.handleHover.bind(this);
@@ -16,17 +25,35 @@ class Grid extends Component {
     render() {
         return (
             <div className="grid">
-                {this.createGrid()}
+                <table>{this.createGrid()}</table>
             </div>
         );
     }
 
+    single(cursorX, cursorY, x, y, emoji) {
+        if (cursorX === x && cursorY === y) return emoji.active;
+        else return emoji.default;
+    }
+
+    proximity(cursorX, cursorY, x, y, emoji) {
+        let distance = (Math.sqrt( (x-cursorX)**2 + (y-cursorY)**2));
+        if (distance === 0) return emoji.active;
+        else if (distance <= 2) return emoji.closer;
+        else if (distance <= 4) return emoji.close;
+        else return emoji.default;
+    }
+
+    angle(cursorX, cursorY, x, y, emoji) {
+        let deg = Math.atan2(y-cursorY, x-cursorX) * (180 / Math.PI);
+        if (cursorX === x && cursorY === y) return emoji.active;
+        if (Math.abs(deg) <= 45) return emoji.left;
+        else if (deg > 45 && deg < 135) return emoji.up;
+        else if (Math.abs(deg) >= 135) return emoji.right;
+        else return emoji.down;
+    }
+
     handleHover(x, y) {
-        let getEmoji = function (cursorX, cursorY, x, y, emoji) {
-            if (cursorX == x && cursorY == y) return emoji.active;
-            else return emoji.default;
-        }
-        this.updateCells(x, y, getEmoji);
+        this.updateCells(x, y, this.proximity);
     }
 
     updateCells(cursorX, cursorY, getEmoji) {
@@ -42,7 +69,7 @@ class Grid extends Component {
             cells: cells
         });
     }
-    
+
     initializeCells() {
         for (let y = 0; y < this.props.height; y++) {
             let row = [];
@@ -54,7 +81,7 @@ class Grid extends Component {
     }
 
     createGrid() {
-        return this.state.cells.map((row) => <span>{row.map((cell) => <Cell x={cell.x} y={cell.y} emoji={cell.emoji} handleHover={this.handleHover}/>)}<br /></span>)
+        return this.state.cells.map((row) => <tr>{row.map((cell) => <Cell x={cell.x} y={cell.y} emoji={cell.emoji} handleHover={this.handleHover}/>)}</tr>)
     }
 }
 

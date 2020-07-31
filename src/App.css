@@ -4,3 +4,8 @@
     height: 500px;
     text-align: justify;
 }
+
+tr, td {
+    padding: -1px;
+    text-align: center;
+}

@@ -14,7 +14,7 @@ class Cell extends Component {
 
     render() {
         return (
-            <span onMouseOver={this.handleHover}>{this.props.emoji}</span>
+            <td onMouseOver={this.handleHover}>{this.props.emoji}</td>
         )
     }
 }
