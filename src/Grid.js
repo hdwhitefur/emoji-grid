@@ -7,25 +7,7 @@ class Grid extends Component {
 		this.state = {
 			cells: []
 		}
-		this.defaultEmoji = "⬜️";
-		this.emoji = [
-			{ emoji: "⬛️", distance: {min: 0, max: 0}, angle: null },
-			{ emoji: "◼️", distance: {min: 0, max: 1}, angle: null },
-			{ emoji: "▪️", distance: {min: 0, max: 2}, angle: null },
-			{ emoji: "👈", distance: {min: 3, max: 5}, angle: { gt: 337.5, lt: 22.5 } },
-			{ emoji: "👇", distance: {min: 3, max: 5}, angle: { gt: 67.5, lt: 112.5 } },
-			{ emoji: "👉", distance: {min: 3, max: 5}, angle: { gt: 157.5, lt: 202.5 } },
-			{ emoji: "👆", distance: {min: 3, max: 5}, angle: { gt: 247.5, lt: 292.5 } },
-			{ emoji: "⬅️", distance: {min: 6, max: 8}, angle: { gt: 337.5, lt: 22.5 } },
-			{ emoji: "↙️", distance: {min: 6, max: 8}, angle: { gt: 22.5, lt: 67.5 } },
-			{ emoji: "⬇️", distance: {min: 6, max: 8}, angle: { gt: 67.5, lt: 112.5 } },
-			{ emoji: "↘️", distance: {min: 6, max: 8}, angle: { gt: 112.5, lt: 157.5 } },
-			{ emoji: "➡️", distance: {min: 6, max: 8}, angle: { gt: 157.5, lt: 202.5 } },
-			{ emoji: "↗️", distance: {min: 6, max: 8}, angle: { gt: 202.5, lt: 247.5 } },
-			{ emoji: "⬆️", distance: {min: 6, max: 8}, angle: { gt: 247.5, lt: 292.5 } },
-			{ emoji: "↖️", distance: {min: 6, max: 8}, angle: { gt: 292.5, lt: 337.5 } },
-			{ emoji: "⬜️", distance: null, angle: null }
-		]
+		this.emoji = this.props.emoji;
 		this.initializeCells();
 
 		this.handleHover = this.handleHover.bind(this);
@@ -87,10 +69,11 @@ class Grid extends Component {
 	}
 
 	initializeCells() {
+		let defaultEmoji = this.emoji[this.emoji.length-1].emoji;
 		for (let y = 0; y < this.props.height; y++) {
 			let row = [];
 			for (let x = 0; x < this.props.width; x++) {
-				row.push({ x: x, y: y, emoji: this.defaultEmoji });
+				row.push({ x: x, y: y, emoji: defaultEmoji });
 			}
 			this.state.cells.push(row);
 		}
