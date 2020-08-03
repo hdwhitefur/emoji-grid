@@ -10,8 +10,8 @@ class Grid extends Component {
         this.defaultEmoji = "⬜️";
         this.emoji = [
             { emoji: "⬛️", distance: {min: 0, max: 0}, angle: null },
-            { emoji: "◼️", distance: {min: 1, max: 1}, angle: null },
-            { emoji: "▪️", distance: {min: 2, max: 2}, angle: null },
+            { emoji: "◼️", distance: {min: 0, max: 1}, angle: null },
+            { emoji: "▪️", distance: {min: 0, max: 2}, angle: null },
             { emoji: "👈", distance: {min: 3, max: 5}, angle: { gt: 337.5, lt: 22.5 } },
             { emoji: "👇", distance: {min: 3, max: 5}, angle: { gt: 67.5, lt: 112.5 } },
             { emoji: "👉", distance: {min: 3, max: 5}, angle: { gt: 157.5, lt: 202.5 } },
@@ -102,11 +102,3 @@ class Grid extends Component {
 }
 
 export default Grid
-
-/*
-
-👆👇👈👉
-😐🙂😃
-⬜️⬛️
-
-*/

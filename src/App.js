@@ -1,13 +1,15 @@
 import React from 'react';
+import Nav from "./Nav";
 import Grid from "./Grid";
+import Control from "./Control";
 import './App.css';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <Grid width="20" height="20" class="grid"/>
-      </header>
+    <div className="app">
+      <Nav />
+      <Grid width="30" height="30" />
+      <Control />
     </div>
   );
 }
