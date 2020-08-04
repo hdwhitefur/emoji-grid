@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import * as presets from "./Presets";
 import Nav from "./Nav";
 import Grid from "./Grid";
+import Planner from "./Planner";
 import Control from "./Control";
 import './App.css';
 
@@ -25,7 +26,7 @@ class App extends Component {
 		return (
 			<div className="app">
 				<Nav />
-				<Grid width="30" height="30" emoji={this.state.emoji} />
+				<Planner />
 				<Control setEmoji={this.setEmoji}/>
 			</div>
 		);
@@ -33,3 +34,5 @@ class App extends Component {
 }
 
 export default App;
+
+//<Grid width="30" height="30" emoji={this.state.emoji} />
