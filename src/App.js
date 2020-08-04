@@ -11,6 +11,14 @@ class App extends Component {
 		this.state = {
 			emoji: presets.simple
 		}
+
+		this.setEmoji = this.setEmoji.bind(this);
+	}
+
+	setEmoji(emoji) {
+		this.setState({
+			emoji: emoji
+		}, () => console.log(this.state.emoji));
 	}
 
 	render() {
@@ -18,7 +26,7 @@ class App extends Component {
 			<div className="app">
 				<Nav />
 				<Grid width="30" height="30" emoji={this.state.emoji} />
-				<Control />
+				<Control setEmoji={this.setEmoji}/>
 			</div>
 		);
 	}

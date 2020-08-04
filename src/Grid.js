@@ -7,7 +7,6 @@ class Grid extends Component {
 		this.state = {
 			cells: []
 		}
-		this.emoji = this.props.emoji;
 		this.initializeCells();
 
 		this.handleHover = this.handleHover.bind(this);
@@ -25,6 +24,10 @@ class Grid extends Component {
 		let distance = (Math.sqrt((x - cursorX) ** 2 + (y - cursorY) ** 2));
 		let angle = Math.atan2(cursorY - y, x - cursorX) * (180 / Math.PI);
 		angle = angle < 0 ? angle + 360 : angle;
+
+		//precursor distance check?
+		//find max distance of any emoji and if distance > maxDistance,
+		//return emoji[emoji.length - 1].emoji
 
 		for (let i = 0; i < emoji.length; i++) {
 
@@ -59,7 +62,7 @@ class Grid extends Component {
 		for (let y = 0; y < this.props.height; y++) {
 			let row = [];
 			for (let x = 0; x < this.props.width; x++) {
-				row.push({ x: x, y: y, emoji: getEmoji(cursorX, cursorY, x, y, this.emoji) });
+				row.push({ x: x, y: y, emoji: getEmoji(cursorX, cursorY, x, y, this.props.emoji) });
 			}
 			cells.push(row);
 		}
@@ -69,7 +72,7 @@ class Grid extends Component {
 	}
 
 	initializeCells() {
-		let defaultEmoji = this.emoji[this.emoji.length-1].emoji;
+		let defaultEmoji = this.props.emoji[this.props.emoji.length-1].emoji;
 		for (let y = 0; y < this.props.height; y++) {
 			let row = [];
 			for (let x = 0; x < this.props.width; x++) {

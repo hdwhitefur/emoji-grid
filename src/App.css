@@ -16,6 +16,7 @@ html, body, #root, .app {
 .grid {
 	margin: 20px;
 	text-align: justify;
+	cursor: default;
 }
 
 tr, td {
