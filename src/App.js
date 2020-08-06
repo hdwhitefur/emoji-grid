@@ -9,7 +9,7 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			gridMode: true
+			gridMode: false
 		}
 
 		this.switchMode = this.switchMode.bind(this);
