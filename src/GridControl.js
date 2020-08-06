@@ -1,5 +1,4 @@
 import React, { Component } from "react"
-import * as presets from "./Presets";
 
 class GridControl extends Component {
 	constructor(props) {
@@ -13,8 +12,9 @@ class GridControl extends Component {
 		return (
 			<div className="control">
 				<div>
-					<button type="button" onClick={() => this.setEmoji(presets.simple)}>Simple</button>
-					<button type="button" onClick={() => this.setEmoji(presets.fancy)}>Fancy</button>
+					{this.props.emojiList.map((item) => {
+						return <button type="button" onClick={() => this.setEmoji(item.emoji)}>{item.name}</button>
+					})}
 				</div>
 				<div>
 					<button type="button" onClick={this.switchMode}>Switch Mode</button>

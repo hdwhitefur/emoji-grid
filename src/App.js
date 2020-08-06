@@ -16,6 +16,7 @@ class App extends Component {
 			]
 		}
 
+		this.addEmoji = this.addEmoji.bind(this);
 		this.switchMode = this.switchMode.bind(this);
 	}
 
@@ -32,8 +33,15 @@ class App extends Component {
 		if (this.state.gridMode) {
 			return(<Grid width="30" height="30" emojiList={this.state.emojiList} switchMode={this.switchMode}/>);
 		} else {
-			return(<Planner switchMode={this.switchMode}/>);
+			return(<Planner addEmoji={this.addEmoji} switchMode={this.switchMode}/>);
 		}
+	}
+
+	addEmoji(emoji) {
+		this.setState({
+			gridMode: this.state.gridMode,
+			emojiList: this.state.emojiList.concat(emoji)
+		});
 	}
 
 	switchMode() {

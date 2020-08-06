@@ -89,11 +89,13 @@ class Planner extends Component {
 				angle: eiDistance === 0 ? null : angleToAnglePair(eiAngle)
 			});
 		});
+		emoji.push({ emoji: "⬜️", distance: null, angle: null });
 
-		console.log(emoji);
+		return {name: "Custom", emoji: emoji};
 	}
 
 	switchMode() {
+		this.props.addEmoji(this.processInputs());
 		this.props.switchMode();
 	}
 }

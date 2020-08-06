@@ -22,7 +22,7 @@ class Grid extends Component {
 				<div className="grid">
 					<table>{this.createGrid()}</table>
 				</div>
-				<GridControl setEmoji={this.setEmoji} switchMode={this.switchMode}/>
+				<GridControl emojiList={this.props.emojiList} setEmoji={this.setEmoji} switchMode={this.switchMode}/>
 			</div>
 		);
 	}
