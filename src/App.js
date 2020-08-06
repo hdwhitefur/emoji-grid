@@ -9,7 +9,11 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			gridMode: false
+			gridMode: true,
+			emojiList: [
+				{name: "Simple", emoji: presets.simple},
+				{name: "Fancy", emoji: presets.fancy}
+			]
 		}
 
 		this.switchMode = this.switchMode.bind(this);
@@ -26,7 +30,7 @@ class App extends Component {
 
 	currentMode() {
 		if (this.state.gridMode) {
-			return(<Grid width="30" height="30" emoji={presets.simple} emojiList={presets} switchMode={this.switchMode}/>);
+			return(<Grid width="30" height="30" emojiList={this.state.emojiList} switchMode={this.switchMode}/>);
 		} else {
 			return(<Planner switchMode={this.switchMode}/>);
 		}

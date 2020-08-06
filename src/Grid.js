@@ -7,7 +7,7 @@ class Grid extends Component {
 		super(props);
 		this.state = {
 			cells: [],
-			emoji: this.props.emoji
+			emoji: this.props.emojiList[0].emoji
 		}
 		this.initializeCells();
 
