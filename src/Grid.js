@@ -1,21 +1,27 @@
 import React, { Component } from "react"
 import Cell from "./Cell"
+import Control from "./Control";
 
 class Grid extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			cells: []
+			cells: [],
+			emoji: this.props.emoji
 		}
 		this.initializeCells();
 
 		this.handleHover = this.handleHover.bind(this);
+		this.setEmoji = this.setEmoji.bind(this);
 	}
 
 	render() {
 		return (
-			<div className="grid">
-				<table>{this.createGrid()}</table>
+			<div className="pair">
+				<div className="grid">
+					<table>{this.createGrid()}</table>
+				</div>
+				<Control setEmoji={this.setEmoji} />
 			</div>
 		);
 	}
@@ -38,8 +44,8 @@ class Grid extends Component {
 						angle < emoji[i].angle.lt) return emoji[i].emoji;
 				}
 				else if (emoji[i].distance.min <= distance && emoji[i].distance.max >= distance &&
-						 ((angle >= emoji[i].angle.gt && angle < 360) ||
-						  (angle <= emoji[i].angle.lt && angle >= 0))) return emoji[i].emoji;
+					((angle >= emoji[i].angle.gt && angle < 360) ||
+						(angle <= emoji[i].angle.lt && angle >= 0))) return emoji[i].emoji;
 			}
 
 			else if (emoji[i].distance != null && emoji[i].distance.min <= distance && emoji[i].distance.max >= distance) {
@@ -57,22 +63,16 @@ class Grid extends Component {
 		this.updateCells(x, y, this.criteria);
 	}
 
-	updateCells(cursorX, cursorY, getEmoji) {
-		let cells = [];
-		for (let y = 0; y < this.props.height; y++) {
-			let row = [];
-			for (let x = 0; x < this.props.width; x++) {
-				row.push({ x: x, y: y, emoji: getEmoji(cursorX, cursorY, x, y, this.props.emoji) });
-			}
-			cells.push(row);
-		}
+	setEmoji(emoji) {
+		console.log("beep");
 		this.setState({
-			cells: cells
+			cells: this.state.cells,
+			emoji: emoji
 		});
 	}
 
 	initializeCells() {
-		let defaultEmoji = this.props.emoji[this.props.emoji.length-1].emoji;
+		let defaultEmoji = this.state.emoji[this.state.emoji.length - 1].emoji;
 		for (let y = 0; y < this.props.height; y++) {
 			let row = [];
 			for (let x = 0; x < this.props.width; x++) {
@@ -80,6 +80,20 @@ class Grid extends Component {
 			}
 			this.state.cells.push(row);
 		}
+	}
+
+	updateCells(cursorX, cursorY, getEmoji) {
+		let cells = [];
+		for (let y = 0; y < this.props.height; y++) {
+			let row = [];
+			for (let x = 0; x < this.props.width; x++) {
+				row.push({ x: x, y: y, emoji: getEmoji(cursorX, cursorY, x, y, this.state.emoji) });
+			}
+			cells.push(row);
+		}
+		this.setState({
+			cells: cells
+		});
 	}
 
 	createGrid() {

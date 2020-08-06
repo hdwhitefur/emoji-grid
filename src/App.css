@@ -13,6 +13,12 @@ html, body, #root, .app {
 	font-size: 24px;
 }
 
+.pair {
+	height: 100%;
+	display: flex;
+	flex-direction: column;
+}
+
 .grid {
 	margin: 20px;
 	text-align: justify;
@@ -38,6 +44,6 @@ input {
 
 .control {
 	padding: 10px;
-	height: 100%;
 	background-color: #e4f0ff;
+	height: 100%;
 }
