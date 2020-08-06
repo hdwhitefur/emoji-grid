@@ -1,6 +1,6 @@
 import React, { Component } from "react"
 import Cell from "./Cell"
-import Control from "./Control";
+import GridControl from "./GridControl";
 
 class Grid extends Component {
 	constructor(props) {
@@ -13,6 +13,7 @@ class Grid extends Component {
 
 		this.handleHover = this.handleHover.bind(this);
 		this.setEmoji = this.setEmoji.bind(this);
+		this.switchMode = this.switchMode.bind(this);
 	}
 
 	render() {
@@ -21,7 +22,7 @@ class Grid extends Component {
 				<div className="grid">
 					<table>{this.createGrid()}</table>
 				</div>
-				<Control setEmoji={this.setEmoji} />
+				<GridControl setEmoji={this.setEmoji} switchMode={this.switchMode}/>
 			</div>
 		);
 	}
@@ -69,6 +70,10 @@ class Grid extends Component {
 			cells: this.state.cells,
 			emoji: emoji
 		});
+	}
+
+	switchMode() {
+		this.props.switchMode();
 	}
 
 	initializeCells() {
