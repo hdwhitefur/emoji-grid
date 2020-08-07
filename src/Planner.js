@@ -38,12 +38,12 @@ class Planner extends Component {
 		ctx.clearRect(0, 0, 500, 500);
 		this.state.shapes.arcs.forEach(arc => {
 			if (arc.visible) {
-				ctx.stroke(arc.arc);
+				ctx.fill(arc.arc);
 			}
 		});
 		this.state.shapes.lines.forEach(line => {
 			if (line.visible) {
-				ctx.stroke(line.line);
+				ctx.fill(line.line);
 			}
 		});
 	}
@@ -54,25 +54,20 @@ class Planner extends Component {
 	generateShapes(radius0 = 40, divisions = 8) {
 		let angle0 = 180 / divisions;
 		let angleDelta = 360 / divisions
-		let getCoords = function (r, a) {
-			return {
-				x: 250 + (r * Math.cos(a * Math.PI / 180)),
-				y: 250 + (r * Math.sin(a * Math.PI / 180))
-			};
-		}
 
 		let arcs = [];
 		let lines = [];
 		for (let r = radius0; r <= 250; r += radius0) {
 			for (let a = -angle0; a < 360 - angleDelta; a += 360 / divisions) {
 				const arc = new Path2D();
-				arc.arc(250, 250, r, a * Math.PI / 180, (a + angleDelta) * Math.PI / 180);
+				arc.arc(250, 250, r-1, a * Math.PI / 180, (a + angleDelta) * Math.PI / 180);
+				arc.arc(250, 250, r+1, (a + angleDelta) * Math.PI / 180, a * Math.PI / 180, true);
 				arcs.push({arc: arc, visible: true});
 
+				//bugged: need arc to arc, not origin to arc
 				const line = new Path2D();
-				let coords = getCoords(r, a);
-				line.moveTo(250, 250);
-				line.lineTo(coords.x, coords.y);
+				line.arc(250, 250, r - radius0, (a - 1) * Math.PI / 180, (a + 1) * Math.PI / 180);
+				line.arc(250, 250, r, (a + 1) * Math.PI / 180, (a - 1) * Math.PI / 180, true);
 				lines.push({line: line, visible: true});
 			}
 		}
@@ -89,7 +84,6 @@ class Planner extends Component {
 				this.toggleArcVisibility(i);
 			}
 			if (ctx.isPointInPath(this.state.shapes.lines[i].line, x, y)) {
-				console.log("boop");
 				this.toggleLineVisibility(i);
 			}
 		}
