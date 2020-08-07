@@ -37,14 +37,12 @@ class Planner extends Component {
 		const ctx = this.refs.canvas.getContext("2d");
 		ctx.clearRect(0, 0, 500, 500);
 		this.state.shapes.arcs.forEach(arc => {
-			if (arc.visible) {
-				ctx.fill(arc.arc);
-			}
+			ctx.fillStyle = arc.visible ? "#000000" : "#DDDDDD";
+			ctx.fill(arc.arc);
 		});
 		this.state.shapes.lines.forEach(line => {
-			if (line.visible) {
-				ctx.fill(line.line);
-			}
+			ctx.fillStyle = line.visible ? "#000000" : "#DDDDDD";
+			ctx.fill(line.line);
 		});
 	}
 
@@ -60,15 +58,16 @@ class Planner extends Component {
 		for (let r = radius0; r <= 250; r += radius0) {
 			for (let a = -angle0; a < 360 - angleDelta; a += 360 / divisions) {
 				const arc = new Path2D();
-				arc.arc(250, 250, r-1, a * Math.PI / 180, (a + angleDelta) * Math.PI / 180);
-				arc.arc(250, 250, r+1, (a + angleDelta) * Math.PI / 180, a * Math.PI / 180, true);
-				arcs.push({arc: arc, visible: true});
+				arc.arc(250, 250, r - 1, a * Math.PI / 180, (a + angleDelta) * Math.PI / 180);
+				arc.arc(250, 250, r + 1, (a + angleDelta) * Math.PI / 180, a * Math.PI / 180, true);
+				arcs.push({ arc: arc, visible: true });
 
-				//bugged: need arc to arc, not origin to arc
-				const line = new Path2D();
-				line.arc(250, 250, r - radius0, (a - 1) * Math.PI / 180, (a + 1) * Math.PI / 180);
-				line.arc(250, 250, r, (a + 1) * Math.PI / 180, (a - 1) * Math.PI / 180, true);
-				lines.push({line: line, visible: true});
+				if (r !== radius0) {
+					const line = new Path2D();
+					line.arc(250, 250, r - radius0, (a - 1) * Math.PI / 180, (a + 1) * Math.PI / 180);
+					line.arc(250, 250, r, (a + 1) * Math.PI / 180, (a - 1) * Math.PI / 180, true);
+					lines.push({ line: line, visible: true });
+				}
 			}
 		}
 		return { arcs: arcs, lines: lines };
@@ -83,6 +82,8 @@ class Planner extends Component {
 			if (ctx.isPointInPath(this.state.shapes.arcs[i].arc, x, y)) {
 				this.toggleArcVisibility(i);
 			}
+		}
+		for (let i = 0; i < this.state.shapes.lines.length; i++) {
 			if (ctx.isPointInPath(this.state.shapes.lines[i].line, x, y)) {
 				this.toggleLineVisibility(i);
 			}
@@ -92,15 +93,15 @@ class Planner extends Component {
 	toggleArcVisibility(i) {
 		let newArcs = [...this.state.shapes.arcs];
 		newArcs[i].visible = !newArcs[i].visible;
-		let shapes = {arcs: newArcs, lines: this.state.shapes.lines};
-		this.setState({shapes: shapes});
+		let shapes = { arcs: newArcs, lines: this.state.shapes.lines };
+		this.setState({ shapes: shapes });
 	}
 
 	toggleLineVisibility(i) {
 		let newLines = [...this.state.shapes.lines];
 		newLines[i].visible = !newLines[i].visible;
-		let shapes = {arcs: this.state.shapes.arcs, lines: newLines};
-		this.setState({shapes: shapes});
+		let shapes = { arcs: this.state.shapes.arcs, lines: newLines };
+		this.setState({ shapes: shapes });
 	}
 
 	//I recognize this is a messy way to do this, but
