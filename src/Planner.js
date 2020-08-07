@@ -8,66 +8,13 @@ class Planner extends Component {
 
 		this.state = {
 			emojiInputs: [],
-			shapes: {
-				arcs: [],
-				lines: []
-			}
+			shapes: this.generateShapes()
 		}
 
 		this.updateValue = this.updateValue.bind(this);
 		this.handleClick = this.handleClick.bind(this);
 		this.processInputs = this.processInputs.bind(this);
 		this.switchMode = this.switchMode.bind(this);
-	}
-
-	generateShapes(radius0 = 40, divisions = 8) {
-		let angle0 = 180 / divisions;
-		let angleDelta = 360 / divisions
-		let getCoords = function (r, a) {
-			return {
-				x: 250 + (r * Math.cos(a * Math.PI / 180)),
-				y: 250 + (r * Math.sin(a * Math.PI / 180))
-			};
-		}
-
-		let arcs = [];
-		let lines = [];
-		for (let r = radius0; r <= 250; r += radius0) {
-			for (let a = -angle0; a < 360 - angleDelta; a += 360 / divisions) {
-				arcs.push({
-					x: 250,
-					y: 250,
-					r: r,
-					sA: a * Math.PI / 180,
-					eA: (a + angleDelta) * Math.PI / 180
-				});
-				let coords = getCoords(r, a);
-				lines.push({
-					x: coords.x,
-					y: coords.y
-				});
-			}
-		}
-		return {arcs: arcs, lines: lines};
-	}
-
-	componentDidMount() {
-		const ctx = this.refs.canvas.getContext("2d");
-		let shapes = this.generateShapes();
-
-		shapes.arcs.forEach(arc => {
-			ctx.beginPath();
-			ctx.arc(arc.x, arc.y, arc.r, arc.sA, arc.eA);
-			ctx.strokeStyle = "#000000";
-			ctx.lineWidth = 2;
-			ctx.stroke();
-		})
-		shapes.lines.forEach(line => {
-			ctx.moveTo(250, 250);
-			ctx.lineTo(line.x, line.y);
-			ctx.lineWidth = 1;
-			ctx.stroke();
-		})
 	}
 
 	render() {
@@ -82,11 +29,84 @@ class Planner extends Component {
 		)
 	}
 
+	componentDidMount() {
+		this.componentDidUpdate();
+	}
+
+	componentDidUpdate() {
+		const ctx = this.refs.canvas.getContext("2d");
+		ctx.clearRect(0, 0, 500, 500);
+		this.state.shapes.arcs.forEach(arc => {
+			if (arc.visible) {
+				ctx.stroke(arc.arc);
+			}
+		});
+		this.state.shapes.lines.forEach(line => {
+			if (line.visible) {
+				ctx.stroke(line.line);
+			}
+		});
+	}
+
+	//Generates circles interspersed by radius0 and
+	//dividing lines indicated by divisions
+	//through smaller arcs and sub-lines
+	generateShapes(radius0 = 40, divisions = 8) {
+		let angle0 = 180 / divisions;
+		let angleDelta = 360 / divisions
+		let getCoords = function (r, a) {
+			return {
+				x: 250 + (r * Math.cos(a * Math.PI / 180)),
+				y: 250 + (r * Math.sin(a * Math.PI / 180))
+			};
+		}
+
+		let arcs = [];
+		let lines = [];
+		for (let r = radius0; r <= 250; r += radius0) {
+			for (let a = -angle0; a < 360 - angleDelta; a += 360 / divisions) {
+				const arc = new Path2D();
+				arc.arc(250, 250, r, a * Math.PI / 180, (a + angleDelta) * Math.PI / 180);
+				arcs.push({arc: arc, visible: true});
+
+				const line = new Path2D();
+				let coords = getCoords(r, a);
+				line.moveTo(250, 250);
+				line.lineTo(coords.x, coords.y);
+				lines.push({line: line, visible: true});
+			}
+		}
+		return { arcs: arcs, lines: lines };
+	}
+
 	handleClick(e) {
 		let rect = this.refs.canvas.getBoundingClientRect();
 		let x = e.pageX - rect.x;
 		let y = e.pageY - rect.y;
 		const ctx = this.refs.canvas.getContext("2d");
+		for (let i = 0; i < this.state.shapes.arcs.length; i++) {
+			if (ctx.isPointInPath(this.state.shapes.arcs[i].arc, x, y)) {
+				this.toggleArcVisibility(i);
+			}
+			if (ctx.isPointInPath(this.state.shapes.lines[i].line, x, y)) {
+				console.log("boop");
+				this.toggleLineVisibility(i);
+			}
+		}
+	}
+
+	toggleArcVisibility(i) {
+		let newArcs = [...this.state.shapes.arcs];
+		newArcs[i].visible = !newArcs[i].visible;
+		let shapes = {arcs: newArcs, lines: this.state.shapes.lines};
+		this.setState({shapes: shapes});
+	}
+
+	toggleLineVisibility(i) {
+		let newLines = [...this.state.shapes.lines];
+		newLines[i].visible = !newLines[i].visible;
+		let shapes = {arcs: this.state.shapes.arcs, lines: newLines};
+		this.setState({shapes: shapes});
 	}
 
 	//I recognize this is a messy way to do this, but
