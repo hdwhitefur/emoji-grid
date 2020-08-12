@@ -97,19 +97,104 @@ class Planner extends Component {
 				this.toggleLineVisibility(line.r, line.a);
 			}
 		})
+	}
 
-		/*
-		for (let i = 0; i < this.state.shapes.arcs.length; i++) {
-			if (ctx.isPointInPath(this.state.shapes.arcs[i].arc, x, y) &&
-				this.state.shapes.arcs[i].r !== 0) {
-				this.toggleArcVisibility(i);
+	cascadeArcVisibility(newArcs, newLines, r, a) {
+
+	}
+
+	cascadeLineVisibility(newArcs, newLines, r, a) {
+		newLines[r][a].visible = false;
+
+		if (!newArcs[r][a - 1].visible) {
+			newLines = this.cascadeLineVisibility(newArcs, newLines, r + 1, a).newLines;
+			newArcs[r][a].visible = false;
+		}
+		if (!newArcs[r][a].visible) {
+			newLines = this.cascadeLineVisibility(newArcs, newLines, r + 1, a).newLines;
+			newArcs[r][a - 1].visible = false;
+		}
+		if (!newArcs[r - 1][a - 1].visible) {
+			newLines = this.cascadeLineVisibility(newArcs, newLines, r - 1, a).newLines;
+			newArcs[r - 1][a].visible = false;
+		}
+		if (!newArcs[r - 1][a].visible) {
+			newLines = this.cascadeLineVisibility(newArcs, newLines, r - 1, a).newLines;
+			newArcs[r - 1][a - 1].visible = false;
+		}
+
+		return { newLines: newLines, newArcs: newArcs };
+	}
+
+	checkAdjacentNew(newArcs, newLines, r, a) {
+		let rHigh = r;
+		let rLow = r - 1;
+		let aHigh = a;
+		let aLow = a - 1;
+		let contiguous = true;
+		while (contiguous) {
+			if (!newArcs[rHigh][aLow].visible) {
+				newLines[rHigh + 1][aHigh].visible = false;
+				newArcs[rHigh][aHigh].visible = false;
+			}
+			if (!newArcs[rHigh][aHigh].visible) {
+				newLines[rHigh + 1][aHigh].visible = false;
+				newArcs[rHigh][aLow].visible = false;
+			}
+			if (!newArcs[rLow][aLow].visible) {
+				newLines[rLow][aHigh].visible = false;
+				newArcs[rLow][aHigh].visible = false;
+			}
+			if (!newArcs[rLow][aLow].visible) {
+				newLines[rLow][aHigh].visible = false;
+				newArcs[rLow][aLow].visible = false;
+			}
+			contiguous = false;
+		}
+	}
+
+	checkAdjacentRecurse(newArcs, newLines, r, a) {
+		newLines[r][a].visible = false;
+		let aLow = a - 1 === -1 ? 7 : a - 1;
+		console.log("recurse");
+
+		if (r >= 0 && r < newArcs.length) {
+			if (!newArcs[r][aLow].visible) {
+				if (newLines[r + 1][a].visible) this.checkAdjacentRecurse(newArcs, newLines, r + 1, a);
+				newArcs[r][a].visible = false;
+			}
+			if (!newArcs[r][a].visible) {
+				if (newLines[r + 1][a].visible) this.checkAdjacentRecurse(newArcs, newLines, r + 1, a);
+				newArcs[r][aLow].visible = false;
+			}
+			if (!newArcs[r - 1][aLow].visible) {
+				if (newLines[r - 1][a].visible) this.checkAdjacentRecurse(newArcs, newLines, r - 1, a);
+				newArcs[r - 1][a].visible = false;
+			}
+			if (!newArcs[r - 1][a].visible) {
+				if (newLines[r - 1][a].visible) this.checkAdjacentRecurse(newArcs, newLines, r - 1, a);
+				newArcs[r - 1][aLow].visible = false;
 			}
 		}
-		for (let i = 0; i < this.state.shapes.lines.length; i++) {
-			if (ctx.isPointInPath(this.state.shapes.lines[i].line, x, y)) {
-				this.toggleLineVisibility(i);
-			}
-		}*/
+	}
+
+	checkAdjacent(newArcs, newLines, r, a) {
+		if (!newArcs[r][a - 1].visible) {
+			newLines[r + 1][a].visible = false;
+			newArcs[r][a].visible = false;
+		}
+		if (!newArcs[r][a].visible) {
+			newLines[r + 1][a].visible = false;
+			newArcs[r][a - 1].visible = false;
+		}
+		if (!newArcs[r - 1][a - 1].visible) {
+			newLines[r - 1][a].visible = false;
+			newArcs[r - 1][a].visible = false;
+		}
+		if (!newArcs[r - 1][a].visible) {
+			newLines[r - 1][a].visible = false;
+			newArcs[r - 1][a - 1].visible = false;
+		}
 	}
 
 	toggleArcVisibility(r, a) {
@@ -121,9 +206,34 @@ class Planner extends Component {
 	}
 
 	toggleLineVisibility(r, a) {
+		let newArcs = [...this.state.shapes.arcs];
 		let newLines = [...this.state.shapes.lines];
 		newLines[r][a].visible = !newLines[r][a].visible;
 		console.log(`r: ${newLines[r][a].r}, a: ${newLines[r][a].a}`);
+
+		this.checkAdjacentRecurse(newArcs, newLines, r, a);
+
+		/*
+		if (!newLines[r][a].visible) {
+			if (!newArcs[r][a - 1].visible) {
+				newLines[r + 1][a].visible = false;
+				newArcs[r][a].visible = false;
+			}
+			if (!newArcs[r][a].visible) {
+				newLines[r + 1][a].visible = false;
+				newArcs[r][a - 1].visible = false;
+			}
+			if (!newArcs[r - 1][a - 1].visible) {
+				newLines[r - 1][a].visible = false;
+				newArcs[r - 1][a].visible = false;
+			}
+			if (!newArcs[r - 1][a].visible) {
+				newLines[r - 1][a].visible = false;
+				newArcs[r - 1][a - 1].visible = false;
+			}
+		}
+		*/
+
 		let shapes = { arcs: this.state.shapes.arcs, lines: newLines };
 		this.setState({ shapes: shapes });
 	}
