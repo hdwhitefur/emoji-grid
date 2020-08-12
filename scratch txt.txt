@@ -1,0 +1,29 @@
+shape_r,a
+
+first change:
+arc2,1
+
+must check:
+line2,1
+line3,1
+line2,8
+line3,8
+
+
+first change:
+line2,1
+
+must check:
+arc1,1
+arc2,1
+arc1,2
+arc2,2
+
+
+2x2 open to left:
+line2,1
+
+must check:
+line3,2 -> if !visible, line3,1 !vis
+arc2,2  -> if !visible, arc2,1 !vis
+line1,2 -> if !visible, line1,1 !vis
