@@ -149,6 +149,8 @@ class Planner extends Component {
 	}
 
 	toggleArcVisibility(r, a) {
+		if (r === 0) return;
+
 		let newArcs = [...this.state.shapes.arcs];
 		let newLines = [...this.state.shapes.lines];
 		newArcs[r][a].visible = !newArcs[r][a].visible;
