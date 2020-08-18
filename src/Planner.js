@@ -64,10 +64,6 @@ class Planner extends Component {
 	//Shapes contain indices r (radius from center)
 	//and a (angle from center starting to right of center
 	//and incrementing by 1 moving counterclockwise)
-	//
-	//Important note: canvas origin is at top left, and
-	//arcs rotate clockwise from 0 deg (so 90 deg is down)
-	//Must account for this in processing
 	generateShapes(radius0 = 40, divisions = 8) {
 		let angle0 = 180 / divisions;
 		let angleDelta = 360 / divisions
@@ -119,8 +115,11 @@ class Planner extends Component {
 		}
 	}
 
+	//TODO: toggle visibility, don't just turn it off
 	checkAdjacentArc(newArcs, newLines, r, a) {
 		newArcs[r][a].visible = false;
+
+		//inccurate names from early in development
 		let aLow = a + 1 === newArcs[0].length ? 0 : a + 1;
 		let aHigh = a - 1 === -1 ? newArcs[0].length - 1 : a - 1;
 
@@ -174,7 +173,6 @@ class Planner extends Component {
 		let newArcs = [...this.state.shapes.arcs];
 		let newLines = [...this.state.shapes.lines];
 		newArcs[r][a].visible = !newArcs[r][a].visible;
-		console.log(`r: ${newArcs[r][a].r}, a: ${newArcs[r][a].a}`);
 
 		this.checkAdjacentArc(newArcs, newLines, r, a);
 
@@ -186,7 +184,6 @@ class Planner extends Component {
 		let newArcs = [...this.state.shapes.arcs];
 		let newLines = [...this.state.shapes.lines];
 		newLines[r][a].visible = !newLines[r][a].visible;
-		console.log(`r: ${newLines[r][a].r}, a: ${newLines[r][a].a}`);
 
 		this.checkAdjacentLine(newArcs, newLines, r, a);
 
@@ -227,26 +224,25 @@ class Planner extends Component {
 		});
 	}
 
+	//TODO: respect visibility values from this.state.shapes
 	processInputs() {
 		let distance = function (x, y) { return Math.round((Math.sqrt((250 - x) ** 2 + (250 - y) ** 2)) / 50); };
 		let angle = function (x, y) {
 			let val = Math.atan2(250 - y, x - 250) * (180 / Math.PI);
 			return val < 0 ? val + 360 : val;
 		};
+		let divisions = this.state.divisions;
 		let angleToAnglePair = function (a) {
-			let angleBuckets = [
-				{ gt: 22.5, lt: 67.5 },
-				{ gt: 67.5, lt: 112.5 },
-				{ gt: 112.5, lt: 157.5 },
-				{ gt: 157.5, lt: 202.5 },
-				{ gt: 202.5, lt: 247.5 },
-				{ gt: 247.5, lt: 292.5 },
-				{ gt: 292.5, lt: 337.5 }
-			];
+			let angleBuckets = [];
+			let angle0 = 180 / divisions;
+			let angleDelta = 360 / divisions;
+			for (let i = 1; i < (divisions - 1) * 2; i += 2) {
+				angleBuckets.push({ gt: i * angle0, lt: i * angle0 + angleDelta });
+			}
 			for (let i = 0; i < angleBuckets.length; i++) {
 				if (a >= angleBuckets[i].gt && a < angleBuckets[i].lt) return angleBuckets[i];
 			}
-			return ({ gt: 337.5, lt: 22.5 });
+			return { gt: angleBuckets[angleBuckets.length - 1].lt, lt: angleBuckets[0].gt };
 		};
 
 		let emoji = [];
