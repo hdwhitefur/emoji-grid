@@ -17,6 +17,8 @@ class Planner extends Component {
 			insertMode: false
 		}
 
+		this.canvas = React.createRef();
+
 		this.updateValue = this.updateValue.bind(this);
 		this.handleClick = this.handleClick.bind(this);
 		this.processInputs = this.processInputs.bind(this);
@@ -29,7 +31,7 @@ class Planner extends Component {
 		return (
 			<div className="pair">
 				<div className="planner">
-					<canvas ref="canvas" width="500" height="500" onClick={this.handleClick}></canvas>
+					<canvas ref={this.canvas} width="500" height="500" onClick={this.handleClick}></canvas>
 					{this.state.emojiInputs.map((item) => item.element)}
 				</div>
 				<PlannerControl processInputs={this.processInputs} switchMode={this.switchMode}
@@ -43,7 +45,7 @@ class Planner extends Component {
 	}
 
 	componentDidUpdate() {
-		const ctx = this.refs.canvas.getContext("2d");
+		const ctx = this.canvas.current.getContext("2d");
 		ctx.clearRect(0, 0, 500, 500);
 		this.state.shapes.arcs.flat().forEach(arc => {
 			ctx.fillStyle = arc.visible ? "#000000" : "#DDDDDD";
@@ -99,10 +101,10 @@ class Planner extends Component {
 		if (this.state.insertMode) {
 			this.spawnBox(e);
 		} else {
-			let rect = this.refs.canvas.getBoundingClientRect();
+			let rect = this.canvas.current.getBoundingClientRect();
 			let x = e.pageX - rect.x;
 			let y = e.pageY - rect.y;
-			const ctx = this.refs.canvas.getContext("2d");
+			const ctx = this.canvas.current.getContext("2d");
 
 			this.state.shapes.arcs.flat().forEach(arc => {
 				if (ctx.isPointInPath(arc.arc, x, y)) {
