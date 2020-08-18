@@ -9,7 +9,7 @@ class App extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			gridMode: true,
+			gridMode: false,
 			emojiList: [
 				{name: "Simple", emoji: presets.simple},
 				{name: "Fancy", emoji: presets.fancy}
