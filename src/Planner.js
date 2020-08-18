@@ -119,8 +119,8 @@ class Planner extends Component {
 
 	checkAdjacentArc(newArcs, newLines, r, a) {
 		newArcs[r][a].visible = false;
-		let aLow = a - 1 === -1 ? newArcs[0].length - 1 : a - 1;
-		let aHigh = a + 1 === newArcs[0].length ? 0 : a + 1;
+		let aLow = a + 1 === newArcs[0].length ? 0 : a + 1;
+		let aHigh = a - 1 === -1 ? newArcs[0].length - 1 : a - 1;
 
 		if (r >= 0 && r < newLines.length) {
 			if (!newLines[r][aHigh].visible) {
@@ -144,24 +144,24 @@ class Planner extends Component {
 
 	checkAdjacentLine(newArcs, newLines, r, a) {
 		newLines[r][a].visible = false;
-		let aLow = a - 1 === -1 ? newArcs[0].length - 1 : a - 1;
+		let aHigh = a + 1 === newArcs[0].length ? 0 : a + 1;
 
 		if (r >= 0 && r < newArcs.length) {
-			if (!newArcs[r][aLow].visible) {
+			if (!newArcs[r][aHigh].visible) {
 				if (newLines[r + 1][a].visible) this.checkAdjacentLine(newArcs, newLines, r + 1, a);
 				if (newArcs[r][a].visible) this.checkAdjacentArc(newArcs, newLines, r, a);
 			}
 			if (!newArcs[r][a].visible) {
 				if (newLines[r + 1][a].visible) this.checkAdjacentLine(newArcs, newLines, r + 1, a);
-				if (newArcs[r][aLow].visible) this.checkAdjacentArc(newArcs, newLines, r, aLow);
+				if (newArcs[r][aHigh].visible) this.checkAdjacentArc(newArcs, newLines, r, aHigh);
 			}
-			if (!newArcs[r - 1][aLow].visible) {
+			if (!newArcs[r - 1][aHigh].visible) {
 				if (newLines[r - 1][a].visible) this.checkAdjacentLine(newArcs, newLines, r - 1, a);
 				if (newArcs[r - 1][a].visible) this.checkAdjacentArc(newArcs, newLines, r - 1, a);
 			}
 			if (!newArcs[r - 1][a].visible) {
 				if (newLines[r - 1][a].visible) this.checkAdjacentLine(newArcs, newLines, r - 1, a);
-				if (newArcs[r - 1][aLow].visible) this.checkAdjacentArc(newArcs, newLines, r - 1, aLow);
+				if (newArcs[r - 1][aHigh].visible) this.checkAdjacentArc(newArcs, newLines, r - 1, aHigh);
 			}
 		}
 	}
