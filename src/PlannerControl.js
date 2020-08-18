@@ -6,6 +6,8 @@ class PlannerControl extends Component {
 
 		this.processInputs = this.processInputs.bind(this);
 		this.switchMode = this.switchMode.bind(this);
+		this.switchInsertMode = this.switchInsertMode.bind(this);
+		this.undo = this.undo.bind(this);
 	}
 
 	render() {
@@ -13,6 +15,8 @@ class PlannerControl extends Component {
 			<div className="control">
 				<button type="button" onClick={this.processInputs}>Process</button>
 				<button type="button" onClick={this.switchMode}>Switch Mode</button>
+				<button type="button" onClick={this.switchInsertMode}>Insert Mode</button>
+				<button type="button" onClick={this.undo}>Undo</button>
 			</div>
 		)
 	}
@@ -23,6 +27,14 @@ class PlannerControl extends Component {
 
 	switchMode() {
 		this.props.switchMode();
+	}
+
+	switchInsertMode() {
+		this.props.switchInsertMode();
+	}
+
+	undo() {
+		this.props.undo();
 	}
 }
 

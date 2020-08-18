@@ -6,15 +6,23 @@ class Planner extends Component {
 	constructor(props) {
 		super(props);
 
+		let arcRadius = 40;
+		let divisions = 8;
+
 		this.state = {
 			emojiInputs: [],
-			shapes: this.generateShapes()
+			arcRadius: arcRadius,
+			divisions: divisions,
+			shapes: this.generateShapes(arcRadius, divisions),
+			insertMode: false
 		}
 
 		this.updateValue = this.updateValue.bind(this);
 		this.handleClick = this.handleClick.bind(this);
 		this.processInputs = this.processInputs.bind(this);
 		this.switchMode = this.switchMode.bind(this);
+		this.switchInsertMode = this.switchInsertMode.bind(this);
+		this.undo = this.undo.bind(this);
 	}
 
 	render() {
@@ -24,7 +32,8 @@ class Planner extends Component {
 					<canvas ref="canvas" width="500" height="500" onClick={this.handleClick}></canvas>
 					{this.state.emojiInputs.map((item) => item.element)}
 				</div>
-				<PlannerControl processInputs={this.processInputs} switchMode={this.switchMode} />
+				<PlannerControl processInputs={this.processInputs} switchMode={this.switchMode}
+					switchInsertMode={this.switchInsertMode} undo={this.undo} />
 			</div>
 		)
 	}
@@ -53,6 +62,10 @@ class Planner extends Component {
 	//Shapes contain indices r (radius from center)
 	//and a (angle from center starting to right of center
 	//and incrementing by 1 moving counterclockwise)
+	//
+	//Important note: canvas origin is at top left, and
+	//arcs rotate clockwise from 0 deg (so 90 deg is down)
+	//Must account for this in processing
 	generateShapes(radius0 = 40, divisions = 8) {
 		let angle0 = 180 / divisions;
 		let angleDelta = 360 / divisions
@@ -63,40 +76,45 @@ class Planner extends Component {
 			let arcRing = [];
 			let lineRing = [];
 			for (let a = -angle0; a < 360 - angleDelta; a += 360 / divisions) {
+				let angle = a < 0 ? a + angleDelta : 360 - a;
 				const arc = new Path2D();
 				arc.arc(250, 250, r - 1, a * Math.PI / 180, (a + angleDelta) * Math.PI / 180);
 				arc.arc(250, 250, r + 1, (a + angleDelta) * Math.PI / 180, a * Math.PI / 180, true);
-				arcRing.push({ arc: arc, r: (r / radius0) - 1, a: ((a + angle0) / angleDelta), visible: true });
+				arcRing.push({ arc: arc, r: (r / radius0) - 1, a: ((angle - angle0) / angleDelta), angle: angle, visible: true });
 
 				if (r !== radius0) {
 					const line = new Path2D();
 					line.arc(250, 250, r - radius0, (a - 1) * Math.PI / 180, (a + 1) * Math.PI / 180);
 					line.arc(250, 250, r, (a + 1) * Math.PI / 180, (a - 1) * Math.PI / 180, true);
-					lineRing.push({ line: line, r: (r / radius0) - 1, a: ((a + angle0) / angleDelta), visible: true });
+					lineRing.push({ line: line, r: (r / radius0) - 1, a: ((angle - angle0) / angleDelta), angle: angle, visible: true });
 				}
 			}
-			arcs.push(arcRing);
-			lines.push(lineRing);
+			arcs.push(arcRing.sort((a, b) => a.angle - b.angle));
+			lines.push(lineRing.sort((a, b) => a.angle - b.angle));
 		}
 		return { arcs: arcs, lines: lines };
 	}
 
 	handleClick(e) {
-		let rect = this.refs.canvas.getBoundingClientRect();
-		let x = e.pageX - rect.x;
-		let y = e.pageY - rect.y;
-		const ctx = this.refs.canvas.getContext("2d");
+		if (this.state.insertMode) {
+			this.spawnBox(e);
+		} else {
+			let rect = this.refs.canvas.getBoundingClientRect();
+			let x = e.pageX - rect.x;
+			let y = e.pageY - rect.y;
+			const ctx = this.refs.canvas.getContext("2d");
 
-		this.state.shapes.arcs.flat().forEach(arc => {
-			if (ctx.isPointInPath(arc.arc, x, y)) {
-				this.toggleArcVisibility(arc.r, arc.a);
-			}
-		});
-		this.state.shapes.lines.flat().forEach(line => {
-			if (ctx.isPointInPath(line.line, x, y)) {
-				this.toggleLineVisibility(line.r, line.a);
-			}
-		})
+			this.state.shapes.arcs.flat().forEach(arc => {
+				if (ctx.isPointInPath(arc.arc, x, y)) {
+					this.toggleArcVisibility(arc.r, arc.a);
+				}
+			});
+			this.state.shapes.lines.flat().forEach(line => {
+				if (ctx.isPointInPath(line.line, x, y)) {
+					this.toggleLineVisibility(line.r, line.a);
+				}
+			});
+		}
 	}
 
 	checkAdjacentArc(newArcs, newLines, r, a) {
@@ -201,6 +219,12 @@ class Planner extends Component {
 		});
 	}
 
+	undo() {
+		this.setState({
+			emojiInputs: this.state.emojiInputs.slice(0, this.state.emojiInputs.length - 1)
+		});
+	}
+
 	processInputs() {
 		let distance = function (x, y) { return Math.round((Math.sqrt((250 - x) ** 2 + (250 - y) ** 2)) / 50); };
 		let angle = function (x, y) {
@@ -242,6 +266,10 @@ class Planner extends Component {
 	switchMode() {
 		this.props.addEmoji(this.processInputs());
 		this.props.switchMode();
+	}
+
+	switchInsertMode() {
+		this.setState({ insertMode: !this.state.insertMode });
 	}
 }
 
