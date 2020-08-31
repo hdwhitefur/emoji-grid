@@ -1,6 +1,7 @@
 import React, { Component } from "react"
 import EmojiInput from "./EmojiInput";
 import PlannerControl from "./PlannerControl";
+var cloneDeep = require("lodash.clonedeep");
 
 class Planner extends Component {
 	constructor(props) {
@@ -14,6 +15,7 @@ class Planner extends Component {
 			arcRadius: arcRadius,
 			divisions: divisions,
 			shapes: this.generateShapes(arcRadius, divisions),
+			shapeHistory: [],
 			insertMode: false
 		}
 
@@ -170,6 +172,8 @@ class Planner extends Component {
 	toggleArcVisibility(r, a) {
 		if (r === 0) return;
 
+		let previousShapes = cloneDeep(this.state.shapes);
+
 		let newArcs = [...this.state.shapes.arcs];
 		let newLines = [...this.state.shapes.lines];
 		newArcs[r][a].visible = !newArcs[r][a].visible;
@@ -177,10 +181,13 @@ class Planner extends Component {
 		this.checkAdjacentArc(newArcs, newLines, r, a);
 
 		let shapes = { arcs: newArcs, lines: this.state.shapes.lines };
-		this.setState({ shapes: shapes });
+		this.setState({ shapes: shapes, shapeHistory: [...this.state.shapeHistory, previousShapes] });
 	}
 
 	toggleLineVisibility(r, a) {
+
+		let previousShapes = cloneDeep(this.state.shapes);
+
 		let newArcs = [...this.state.shapes.arcs];
 		let newLines = [...this.state.shapes.lines];
 		newLines[r][a].visible = !newLines[r][a].visible;
@@ -188,7 +195,7 @@ class Planner extends Component {
 		this.checkAdjacentLine(newArcs, newLines, r, a);
 
 		let shapes = { arcs: this.state.shapes.arcs, lines: newLines };
-		this.setState({ shapes: shapes });
+		this.setState({ shapes: shapes, shapeHistory: [...this.state.shapeHistory, previousShapes] });
 	}
 
 	//I recognize this is a messy way to do this, but
@@ -219,9 +226,16 @@ class Planner extends Component {
 	}
 
 	undo() {
-		this.setState({
-			emojiInputs: this.state.emojiInputs.slice(0, this.state.emojiInputs.length - 1)
-		});
+		if (this.state.insertMode) {
+			this.setState({
+				emojiInputs: this.state.emojiInputs.slice(0, this.state.emojiInputs.length - 1)
+			});
+		} else if (this.state.shapeHistory.length > 0) {
+			this.setState({
+				shapes: this.state.shapeHistory[this.state.shapeHistory.length - 1],
+				shapeHistory: this.state.shapeHistory.slice(0, this.state.shapeHistory.length - 1)
+			});
+		}
 	}
 
 	//TODO: respect visibility values from this.state.shapes
