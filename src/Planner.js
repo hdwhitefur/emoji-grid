@@ -240,7 +240,8 @@ class Planner extends Component {
 
 	//TODO: respect visibility values from this.state.shapes
 	processInputs() {
-		let distance = function (x, y) { return Math.round((Math.sqrt((250 - x) ** 2 + (250 - y) ** 2)) / 50); };
+		let arcRadius = this.state.arcRadius;
+		let distance = function (x, y) { return Math.floor((Math.sqrt((250 - x) ** 2 + (250 - y) ** 2)) / arcRadius); };
 		let angle = function (x, y) {
 			let val = Math.atan2(250 - y, x - 250) * (180 / Math.PI);
 			return val < 0 ? val + 360 : val;
@@ -264,15 +265,72 @@ class Planner extends Component {
 			let emojiInput = emojiInputPair.element;
 			let eiDistance = distance(emojiInput.props.relCoords.x, emojiInput.props.relCoords.y);
 			let eiAngle = angle(emojiInput.props.relCoords.x, emojiInput.props.relCoords.y);
-			emoji.push({
+			emoji.push(this.createEmojiObject(emojiInputPair.value, eiDistance, angleToAnglePair(eiAngle)));
+			/*emoji.push({
 				emoji: emojiInputPair.value,
-				distance: eiDistance === 0 ? { min: 0, max: 0 } : { min: eiDistance - 1, max: eiDistance },
+				distance: eiDistance === 0 ? { min: 0, max: 0 } : { min: eiDistance, max: eiDistance },
 				angle: eiDistance === 0 ? null : angleToAnglePair(eiAngle)
-			});
+			});*/
 		});
 		emoji.push({ emoji: "⬜️", distance: null, angle: null });
 
 		return { name: "Custom", emoji: emoji };
+	}
+
+	createEmojiObject(emoji, eiDistance, eiAnglePair) {
+		let a = (eiAnglePair.lt - 22.5) / 45;		
+		console.log(`${emoji}: dist ${eiDistance}, angle ${a}`);
+
+		if (eiDistance === 0) {
+			return {
+				emoji: emoji,
+				distance: { min: 0, max: 0 },
+				angle: null
+			}
+		}
+
+		//check inward
+		let rMin = eiDistance - 1;
+		while (rMin > 0 && !this.state.shapes.arcs[rMin][a].visible) {
+			rMin--;
+		}
+		rMin = rMin === eiDistance - 1 ? eiDistance : rMin;
+
+		//check outward
+		let rMax = eiDistance + 1;
+		while (rMax < Math.floor(250 / this.state.arcRadius) - 1 && !this.state.shapes.arcs[rMax][a].visible) {
+			rMax++;
+		}
+		rMax = rMax === eiDistance + 1 ? eiDistance : rMax;
+
+		//check clockwise
+		let aMax = (a + 1) % this.state.divisions;
+		while (aMax !== a && !this.state.shapes.lines[eiDistance][aMax].visible) {
+			aMax = (aMax + 1) % this.state.divisions;
+		}
+		aMax = aMax === (a + 1) % this.state.divisions ? a : aMax;
+
+		//check counterclockwise
+		let aMin = (a - 1 + this.state.divisions) % this.state.divisions;
+		while (aMin !== a && !this.state.shapes.lines[eiDistance][aMin].visible) {
+			aMin = (aMin - 1 + this.state.divisions) % this.state.divisions;
+		}
+		aMin = aMin === (a - 1 + this.state.divisions) % this.state.divisions ? a : aMin;
+
+		console.log(`rMin: ${rMin}, rMax: ${rMax}, aMin: ${aMin}, aMax: ${aMax}`);
+
+		let lt = this.state.shapes.arcs[0][0].angle;
+		if (aMax + 1 < this.state.divisions) {
+			lt = this.state.shapes.arcs[0][aMax + 1].angle;
+		}
+
+		let output = {
+			emoji: emoji,
+			distance: { min: rMin, max: rMax + 1},
+			angle: { gt: this.state.shapes.arcs[0][aMin].angle, lt: lt }
+		}
+		
+		return output;
 	}
 
 	switchMode() {
